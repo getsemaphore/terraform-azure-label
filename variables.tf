@@ -1,47 +1,21 @@
 variable "context" {
-  type = any
+  description = "Common context for all modules"
+  type        = any
   default = {
     enabled             = true
     namespace           = null
-    tenant              = null
     environment         = null
-    stage               = null
-    name                = null
     delimiter           = null
+    name                = null
+    location            = null
     attributes          = []
-    tags                = {}
-    additional_tag_map  = {}
     regex_replace_chars = null
     label_order         = []
     id_length_limit     = null
     label_key_case      = null
     label_value_case    = null
-    descriptor_formats  = {}
-    # Note: we have to use [] instead of null for unset lists due to
-    # https://github.com/hashicorp/terraform/issues/28137
-    # which was not fixed until Terraform 1.0.0,
-    # but we want the default to be all the labels in `label_order`
-    # and we want users to be able to prevent all tag generation
-    # by setting `labels_as_tags` to `[]`, so we need
-    # a different sentinel to indicate "default"
-    labels_as_tags = ["unset"]
-  }
-  description = <<-EOT
-    Single object for setting entire context at once.
-    See description of individual variables for details.
-    Leave string and numeric variables as `null` to use default value.
-    Individual variable settings (non-null) override settings in context object,
-    except for attributes, tags, and additional_tag_map, which are merged.
-  EOT
-
-  validation {
-    condition     = lookup(var.context, "label_key_case", null) == null ? true : contains(["lower", "title", "upper"], var.context["label_key_case"])
-    error_message = "Allowed values: `lower`, `title`, `upper`."
-  }
-
-  validation {
-    condition     = lookup(var.context, "label_value_case", null) == null ? true : contains(["lower", "title", "upper", "none"], var.context["label_value_case"])
-    error_message = "Allowed values: `lower`, `title`, `upper`, `none`."
+    tags                = {}
+    additional_tag_map  = {}
   }
 }
 
@@ -54,25 +28,19 @@ variable "enabled" {
 variable "namespace" {
   type        = string
   default     = null
-  description = "ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique"
+  description = "ID element. Usually an abbreviation of your organization name, e.g. 'sem', to help ensure generated IDs are globally unique"
 }
 
-variable "tenant" {
+variable "location" {
   type        = string
   default     = null
-  description = "ID element _(Rarely used, not included by default)_. A customer identifier, indicating who this instance of a resource is for"
+  description = "ID element. Usually used for region e.g. 'France Central'"
 }
 
 variable "environment" {
   type        = string
   default     = null
-  description = "ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT'"
-}
-
-variable "stage" {
-  type        = string
-  default     = null
-  description = "ID element. Usually used to indicate role, e.g. 'prod', 'staging', 'source', 'build', 'test', 'deploy', 'release'"
+  description = "ID element. Usually used to indicate role, e.g. 'prod', 'stg', 'dev'"
 }
 
 variable "name" {
@@ -105,21 +73,6 @@ variable "attributes" {
     EOT
 }
 
-variable "labels_as_tags" {
-  type        = set(string)
-  default     = ["default"]
-  description = <<-EOT
-    Set of labels (ID elements) to include as tags in the `tags` output.
-    Default is to include all labels.
-    Tags with empty values will not be included in the `tags` output.
-    Set to `[]` to suppress all generated tags.
-    **Notes:**
-      The value of the `name` tag, if included, will be the `id`, not the `name`.
-      Unlike other `null-label` inputs, the initial setting of `labels_as_tags` cannot be
-      changed in later chained modules. Attempts to change it will be silently ignored.
-    EOT
-}
-
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -144,7 +97,7 @@ variable "label_order" {
   default     = null
   description = <<-EOT
     The order in which the labels (ID elements) appear in the `id`.
-    Defaults to ["namespace", "environment", "stage", "name", "attributes"].
+    Defaults to ["namespace", "name", "environment", "location_short", "attributes"].
     You can omit any of the 6 labels ("tenant" is the 6th), but at least one must be present.
     EOT
 }
@@ -206,23 +159,4 @@ variable "label_value_case" {
     condition     = var.label_value_case == null ? true : contains(["lower", "title", "upper", "none"], var.label_value_case)
     error_message = "Allowed values: `lower`, `title`, `upper`, `none`."
   }
-}
-
-variable "descriptor_formats" {
-  type        = any
-  default     = {}
-  description = <<-EOT
-    Describe additional descriptors to be output in the `descriptors` output map.
-    Map of maps. Keys are names of descriptors. Values are maps of the form
-    `{
-       format = string
-       labels = list(string)
-    }`
-    (Type is `any` so the map values can later be enhanced to provide additional options.)
-    `format` is a Terraform format string to be passed to the `format()` function.
-    `labels` is a list of labels, in order, to pass to `format()` function.
-    Label values will be normalized before being passed to `format()` so they will be
-    identical to how they appear in `id`.
-    Default is `{}` (`descriptors` output will be empty).
-    EOT
 }

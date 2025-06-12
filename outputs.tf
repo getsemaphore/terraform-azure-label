@@ -18,11 +18,6 @@ output "namespace" {
   description = "Normalized namespace"
 }
 
-output "tenant" {
-  value       = local.enabled ? local.tenant : ""
-  description = "Normalized tenant"
-}
-
 output "environment" {
   value       = local.enabled ? local.environment : ""
   description = "Normalized environment"
@@ -31,11 +26,6 @@ output "environment" {
 output "name" {
   value       = local.enabled ? local.name : ""
   description = "Normalized name"
-}
-
-output "stage" {
-  value       = local.enabled ? local.stage : ""
-  description = "Normalized stage"
 }
 
 output "delimiter" {
@@ -73,20 +63,6 @@ output "id_length_limit" {
   description = "The id_length_limit actually used to create the ID, with `0` meaning unlimited"
 }
 
-output "tags_as_list_of_maps" {
-  value       = local.tags_as_list_of_maps
-  description = <<-EOT
-    This is a list with one map for each `tag`. Each map contains the tag `key`,
-    `value`, and contents of `var.additional_tag_map`. Used in the rare cases
-    where resources need additional configuration information for each tag.
-    EOT
-}
-
-output "descriptors" {
-  value       = local.descriptors
-  description = "Map of descriptors as configured by `descriptor_formats`"
-}
-
 output "normalized_context" {
   value       = local.output_context
   description = "Normalized context of this module"
@@ -99,4 +75,3 @@ output "context" {
   Note: this version will have null values as defaults, not the values actually used as defaults.
 EOT
 }
-
