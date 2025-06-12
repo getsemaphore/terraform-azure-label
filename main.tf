@@ -114,10 +114,10 @@ locals {
     local.label_value_case == "upper" ? upper(v) : lower(v))
   ]))
 
-  namespace      = local.formatted_labels["namespace"]
-  environment    = local.formatted_labels["environment"]
-  location       = local.formatted_labels["location"]
-  name           = local.formatted_labels["name"]
+  namespace   = local.formatted_labels["namespace"]
+  environment = local.formatted_labels["environment"]
+  location    = local.formatted_labels["location"]
+  name        = local.formatted_labels["name"]
 
   delimiter        = local.input.delimiter == null ? local.defaults.delimiter : local.input.delimiter
   label_order      = local.input.label_order == null ? local.defaults.label_order : coalescelist(local.input.label_order, local.defaults.label_order)
@@ -135,7 +135,6 @@ locals {
     location       = local.location
     location_short = local.location_short
     # For AWS we need `Name` to be disambiguated since it has a special meaning
-    name       = local.id
     attributes = local.id_context.attributes
   }
 
@@ -191,3 +190,4 @@ locals {
   }
 
 } 
+
